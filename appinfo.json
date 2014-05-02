@@ -1,0 +1,130 @@
+{
+  "uuid": "5ae91e87-9987-467d-a791-13412ebc9d59",
+  "shortName": "Weather Chinese",
+  "longName": "Weather-Chinese",
+  "companyName": "Pebble Asian",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "temp": 0,
+    "temp_min_day1": 1,
+    "temp_max_day1": 2,
+    "icon_day1": 3,
+    "desc_day1": 4,
+    "temp_min_day2": 5,
+    "temp_max_day2": 6,
+    "icon_day2": 7,
+    "desc_day2": 8
+  },
+  "resources": {
+    "media": [
+      {
+        "type": "png-trans",
+        "name": "IMAGE_01D",
+        "file": "images/01d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_01N",
+        "file": "images/01n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_02D",
+        "file": "images/02d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_02N",
+        "file": "images/02n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_03D",
+        "file": "images/03d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_03N",
+        "file": "images/03n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_04D",
+        "file": "images/04d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_04N",
+        "file": "images/04n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_09D",
+        "file": "images/09d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_09N",
+        "file": "images/09n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_10D",
+        "file": "images/10d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_10N",
+        "file": "images/10n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_11D",
+        "file": "images/11d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_11N",
+        "file": "images/11n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_13D",
+        "file": "images/13d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_13N",
+        "file": "images/13n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_50D",
+        "file": "images/50d.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_50N",
+        "file": "images/50n.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BLUETOOTH",
+        "file": "images/bluetooth.png"
+      },
+      {
+        "characterRegex": "[-.%:~0-9℃雷雨小大零星毛密集阵冻雪夹薄雾沙尘暴晴龙卷风台冷热冰雹强烈年多云上下午中傍晚凌晨清星期月号日一二三四五六七八九十更新时间充电已连联接断开]",
+        "type": "font",
+        "name": "FONT_IPAG_12",
+        "file": "fonts/ipag.ttf"
+      }
+    ]
+  },
+  "capabilities": [
+    "location"
+  ]
+}
