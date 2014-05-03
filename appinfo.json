@@ -17,7 +17,8 @@
     "temp_min_day2": 5,
     "temp_max_day2": 6,
     "icon_day2": 7,
-    "desc_day2": 8
+    "desc_day2": 8,
+    "pm25": 9
   },
   "resources": {
     "media": [
@@ -117,7 +118,7 @@
         "file": "images/bluetooth.png"
       },
       {
-        "characterRegex": "[-.%:~0-9℃雷雨小大零星毛密集阵冻雪夹薄雾沙尘暴晴龙卷风台冷热冰雹强烈年多云上下午中傍晚凌晨清星期月号日一二三四五六七八九十更新时间充电已连联接断开]",
+        "characterRegex": "[-.，%:~0-9℃雷雨小大零星毛密集阵冻雪夹薄雾沙尘暴晴龙卷风台冷热冰雹强烈年多少云上下午中傍晚凌晨清星期月号日一二三四五六七八九十更新时间充电已连联接断开]",
         "type": "font",
         "name": "FONT_IPAG_12",
         "file": "fonts/ipag.ttf"

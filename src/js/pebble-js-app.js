@@ -7,7 +7,30 @@ function getAndShowWeather () {
     getForcastWeather(position.coords.longitude, position.coords.latitude);
   });
 
+  getPM25();
+
   setTimeout(getAndShowWeather, 3600000);
+}
+
+function getPM25() {
+  var req = new XMLHttpRequest();
+    req.open('GET',"http://www.pm25.in/api/querys/pm2_5.json?city=shanghai&token=8Ep3VW2KvcHQviTqiDG8");
+    req.onload = function(e) {
+      if (req.readyState == 4 && req.status == 200) {
+        if (req.status == 200) {
+          var response = JSON.parse(req.responseText);
+
+          var send = {};
+          send.pm25 = Number(response[0].pm2_5_24h).toFixed(0);
+          console.log("PM2.5");
+          console.log(send.pm25);
+          Pebble.sendAppMessage(send);
+        } else {
+          console.log("Error");
+        }
+      }
+    };
+    req.send(null);
 }
 
 function getCurrentWeather(lon, lat) {
@@ -31,8 +54,10 @@ function getCurrentWeather(lon, lat) {
 }
 
 function getForcastWeather(lon, lat) {
+  console.log("lon:",lon);
+  console.log("lat:",lat);
   var req = new XMLHttpRequest();
-    req.open('GET',"http://api.openweathermap.org/data/2.5/forecast/daily?lat=" + lat + "&lon=" + lon + "&lang=zh_cn&cnt=3&mode=json");
+    req.open('GET',"http://api.openweathermap.org/data/2.5/forecast/daily?lat=" + lat + "&lon=" + lon + "&lang=zh_cn&cnt=2&mode=json");
     req.onload = function(e) {
       if (req.readyState == 4 && req.status == 200) {
         if (req.status == 200) {

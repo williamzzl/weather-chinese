@@ -7,6 +7,7 @@ TextLayer *text_updateTime_layer;
 TextLayer *text_battery_layer;
 
 TextLayer *text_date_layer;
+TextLayer *text_pm25_layer;
 TextLayer *text_daily_weather_layer;
 
 TextLayer *text_time_layer;
@@ -25,8 +26,29 @@ enum WeatherKey {
   TEMP_MIN_DAY2 = 0x5,
   TEMP_MAX_DAY2 = 0x6,
   ICON_DAY2 = 0x7,
-  DESC_DAY2 = 0x8
+  DESC_DAY2 = 0x8,
+  PM25 = 0x9
 };
+
+char *translate_error(AppMessageResult result) {
+  switch (result) {
+    case APP_MSG_OK: return "APP_MSG_OK";
+    case APP_MSG_SEND_TIMEOUT: return "APP_MSG_SEND_TIMEOUT";
+    case APP_MSG_SEND_REJECTED: return "APP_MSG_SEND_REJECTED";
+    case APP_MSG_NOT_CONNECTED: return "APP_MSG_NOT_CONNECTED";
+    case APP_MSG_APP_NOT_RUNNING: return "APP_MSG_APP_NOT_RUNNING";
+    case APP_MSG_INVALID_ARGS: return "APP_MSG_INVALID_ARGS";
+    case APP_MSG_BUSY: return "APP_MSG_BUSY";
+    case APP_MSG_BUFFER_OVERFLOW: return "APP_MSG_BUFFER_OVERFLOW";
+    case APP_MSG_ALREADY_RELEASED: return "APP_MSG_ALREADY_RELEASED";
+    case APP_MSG_CALLBACK_ALREADY_REGISTERED: return "APP_MSG_CALLBACK_ALREADY_REGISTERED";
+    case APP_MSG_CALLBACK_NOT_REGISTERED: return "APP_MSG_CALLBACK_NOT_REGISTERED";
+    case APP_MSG_OUT_OF_MEMORY: return "APP_MSG_OUT_OF_MEMORY";
+    case APP_MSG_CLOSED: return "APP_MSG_CLOSED";
+    case APP_MSG_INTERNAL_ERROR: return "APP_MSG_INTERNAL_ERROR";
+    default: return "UNKNOWN ERROR";
+  }
+}
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   APP_LOG(APP_LOG_LEVEL_INFO, "start handle_minute_tick");
@@ -57,7 +79,7 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   text_layer_set_text(text_time_layer, time_text);
 
   static char date_text[30];
-  snprintf(date_text, sizeof(date_text), "%d年%d月%d日", tick_time->tm_year + 1900, tick_time->tm_mon + 1,tick_time->tm_mday);
+  snprintf(date_text, sizeof(date_text), "%d月%d日", tick_time->tm_mon + 1,tick_time->tm_mday);
   text_layer_set_text(text_date_layer, date_text);
 
   APP_LOG(APP_LOG_LEVEL_INFO, "end handle_minute_tick");
@@ -128,6 +150,7 @@ void in_received_handler(DictionaryIterator *received, void *content) {
   Tuple *temp_max_day2 = dict_find(received, TEMP_MAX_DAY2);
   Tuple *desc_day2 = dict_find(received, DESC_DAY2);
   Tuple *icon_day2 = dict_find(received, ICON_DAY2);
+  Tuple *pm25 = dict_find(received, PM25);
   static char weather_text_day0[20];
   static char weather_text_day1[40];
   static char weather_text_day2[40];
@@ -153,6 +176,12 @@ void in_received_handler(DictionaryIterator *received, void *content) {
     text_layer_set_text(text_day2_weather_layer, weather_text_day2);
 
     bitmap_layer_set_bitmap(day2_weather_icon_layer, getIcon(day2_weather_icon_bitmap, icon_day2));
+  }
+
+  static char pm25text[20];
+  if (pm25) {
+    snprintf(pm25text, sizeof(pm25text), "2.5:%s", pm25->value->cstring);
+    text_layer_set_text(text_pm25_layer, pm25text);
   }
 
   static char update_time[20];
@@ -206,7 +235,7 @@ void handle_bluetooth(bool connected) {
 }
 
 void in_dropped_handler(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "App Message Dropped!Reason: %d", reason);
+  APP_LOG(APP_LOG_LEVEL_INFO, "App Message Dropped!Reason: %i - %s", reason, translate_error(reason));
 }
 
 Layer* prepareTextLayer(TextLayer* layer) {
@@ -244,17 +273,23 @@ void init(void) {
   layer_add_child(window_layer, prepareTextLayer(text_battery_layer));
  
   //date text layer
-  text_date_layer = text_layer_create(GRect(3, 17, 92, 16));
+  text_date_layer = text_layer_create(GRect(3, 17, 42, 20));
   layer_add_child(window_layer, prepareTextLayer(text_date_layer));
 
+  //PM2.5 text layer
+  text_pm25_layer = text_layer_create(GRect(45, 17, 50, 20));
+  prepareTextLayer(text_pm25_layer);
+  text_layer_set_font(text_pm25_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  layer_add_child(window_layer, prepareTextLayer(text_pm25_layer));
+
   //daily weather layer
-  text_daily_weather_layer = text_layer_create(GRect(95, 17, 46, 16));
+  text_daily_weather_layer = text_layer_create(GRect(95, 17, 46, 20));
   layer_add_child(window_layer, prepareTextLayer(text_daily_weather_layer));
 
   //time layer
-  text_time_layer = text_layer_create(GRect(3, 33, 138, 54));
+  text_time_layer = text_layer_create(GRect(3, 37, 138, 50));
   prepareTextLayer(text_time_layer);
-  text_layer_set_font(text_time_layer, fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49));
+  text_layer_set_font(text_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS));
   layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
 
   //day 1 icon layer
