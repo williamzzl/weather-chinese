@@ -4,7 +4,7 @@ Window *window;
 
 BitmapLayer *bluetooth_layer;
 TextLayer *text_updateTime_layer;
-TextLayer *text_battery_layer;
+BitmapLayer *battery_layer;
 
 TextLayer *text_date_layer;
 TextLayer *text_pm25_layer;
@@ -127,6 +127,21 @@ int getResourceId(char* icon) {
   return 0;
 }
 
+int getBatteryIcon(uint32_t percentage) {
+  if (percentage > 80 && percentage <= 100) {
+    return RESOURCE_ID_IMAGE_BATTERY_100_BLACK;
+  } else if (percentage > 60 && percentage <= 80) {
+    return RESOURCE_ID_IMAGE_BATTERY_80_BLACK;
+  } else if (percentage > 40 && percentage <= 60) {
+    return RESOURCE_ID_IMAGE_BATTERY_60_BLACK;
+  } else if (percentage > 20 && percentage <= 40) {
+    return RESOURCE_ID_IMAGE_BATTERY_40_BLACK;
+  } else if (percentage > 10 && percentage <= 20) {
+    return RESOURCE_ID_IMAGE_BATTERY_20_BLACK;
+  } else {
+    return RESOURCE_ID_IMAGE_BATTERY_EMPTY_BLACK;
+  }
+}
 
 GBitmap* getIcon(GBitmap* weather_icon_bitmap, Tuple* icon) {
   if (weather_icon_bitmap) {
@@ -199,20 +214,20 @@ void handle_battery(BatteryChargeState charge_state) {
 
   APP_LOG(APP_LOG_LEVEL_INFO, "start handle_battery");
 
-  static char battery_text[30] = "100%";
+  static GBitmap *battery_bitmap = NULL;
 
   if (charge_state.is_charging) {
-    snprintf(battery_text, sizeof(battery_text), "充电中");
+    battery_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_CHARGE_BLACK);
   } else {
-    snprintf(battery_text, sizeof(battery_text), "%d%%", charge_state.charge_percent);
-    if (charge_state.charge_percent <= 30) {
+    if (charge_state.charge_percent <= 20) {
       vibes_long_pulse();
     }
+    battery_bitmap = gbitmap_create_with_resource(getBatteryIcon(charge_state.charge_percent));
     APP_LOG(APP_LOG_LEVEL_INFO, "battery_text %d%%", charge_state.charge_percent);
   }
 
 
-  text_layer_set_text(text_battery_layer, battery_text);
+  bitmap_layer_set_bitmap(battery_layer, battery_bitmap);
 
   APP_LOG(APP_LOG_LEVEL_INFO, "end handle_battery");
 }
@@ -269,8 +284,9 @@ void init(void) {
   layer_add_child(window_layer, prepareTextLayer(text_updateTime_layer));
  
   //system bar layer----battery
-  text_battery_layer = text_layer_create(GRect(103, 1, 30, 16));
-  layer_add_child(window_layer, prepareTextLayer(text_battery_layer));
+  battery_layer = bitmap_layer_create(GRect(103, 1, 30, 16));
+  bitmap_layer_set_alignment(battery_layer, GAlignRight);
+  layer_add_child(window_layer, bitmap_layer_get_layer(battery_layer));
  
   //date text layer
   text_date_layer = text_layer_create(GRect(3, 17, 42, 20));

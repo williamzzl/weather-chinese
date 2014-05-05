@@ -118,6 +118,41 @@
         "file": "images/bluetooth.png"
       },
       {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_20",
+        "file": "images/battery-20.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_40",
+        "file": "images/battery-40.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_60",
+        "file": "images/battery-60.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_80",
+        "file": "images/battery-80.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_100",
+        "file": "images/battery-100.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_CHARGE",
+        "file": "images/battery-charge.png"
+      },
+      {
+        "type": "png-trans",
+        "name": "IMAGE_BATTERY_EMPTY",
+        "file": "images/battery-empty.png"
+      },
+      {
         "characterRegex": "[-.，%:~0-9℃雷雨小大零星毛密集阵冻雪夹薄雾沙尘暴晴龙卷风台冷热冰雹强烈年多少云上下午中傍晚凌晨清星期月号日一二三四五六七八九十更新时间充电已连联接断开]",
         "type": "font",
         "name": "FONT_IPAG_12",
