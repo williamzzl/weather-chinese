@@ -27,7 +27,8 @@ enum WeatherKey {
   TEMP_MAX_DAY2 = 0x6,
   ICON_DAY2 = 0x7,
   DESC_DAY2 = 0x8,
-  PM25 = 0x9
+  PM25 = 0x9,
+  TS = 0xa
 };
 
 char *translate_error(AppMessageResult result) {
@@ -50,11 +51,8 @@ char *translate_error(AppMessageResult result) {
   }
 }
 
-void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "start handle_minute_tick");
-  // Need to be static because they're used by the system later.
-  static char time_text[] = "00:00";
-
+void get_current_time(char *time_text, struct tm *tick_time) {
+  static char time_str[] = "00:00";
   char *time_format;
 
   if (!tick_time) {
@@ -68,17 +66,25 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     time_format = "%I:%M";
   }
 
-  strftime(time_text, sizeof(time_text), time_format, tick_time);
+  strftime(time_str, 6, time_format, tick_time);
 
-  if (!clock_is_24h_style() && (time_text[0] == '0')) {
-    memmove(time_text, &time_text[1], sizeof(time_text) - 1);
+  if (!clock_is_24h_style() && (time_str[0] == '0')) {
+    memmove(time_str, &time_str[1], sizeof(time_str) - 1);
   }
+  memmove(time_text, time_str, sizeof(time_str));
+}
 
-  APP_LOG(APP_LOG_LEVEL_INFO, "time_text");
-  APP_LOG(APP_LOG_LEVEL_INFO, time_text);
+void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "start handle_minute_tick");
+  // Need to be static because they're used by the system later.
+  static char time_text[20];
+  get_current_time(time_text, tick_time);
+
   text_layer_set_text(text_time_layer, time_text);
 
   static char date_text[30];
+  time_t now = time(NULL);
+  tick_time = localtime(&now);
   snprintf(date_text, sizeof(date_text), "%d月%d日", tick_time->tm_mon + 1,tick_time->tm_mday);
   text_layer_set_text(text_date_layer, date_text);
 
@@ -178,7 +184,7 @@ void in_received_handler(DictionaryIterator *received, void *content) {
   }
 
   if (temp_min_day1 && temp_max_day1 && desc_day1) {
-    snprintf(weather_text_day1, sizeof(weather_text_day1), "%s-%s%s", temp_min_day1->value->cstring, temp_max_day1->value->cstring, desc_day1->value->cstring);
+    snprintf(weather_text_day1, sizeof(weather_text_day1), "今:%s-%s℃", temp_min_day1->value->cstring, temp_max_day1->value->cstring);
 
     text_layer_set_text(text_day1_weather_layer, weather_text_day1);
 
@@ -186,7 +192,7 @@ void in_received_handler(DictionaryIterator *received, void *content) {
   }
 
   if (temp_min_day2 && temp_max_day2 && desc_day2) {
-    snprintf(weather_text_day2, sizeof(weather_text_day2), "%s-%s%s", temp_min_day2->value->cstring, temp_max_day2->value->cstring, desc_day2->value->cstring);
+    snprintf(weather_text_day2, sizeof(weather_text_day2), "明:%s-%s℃", temp_min_day2->value->cstring, temp_max_day2->value->cstring);
 
     text_layer_set_text(text_day2_weather_layer, weather_text_day2);
 
@@ -195,15 +201,14 @@ void in_received_handler(DictionaryIterator *received, void *content) {
 
   static char pm25text[20];
   if (pm25) {
-    snprintf(pm25text, sizeof(pm25text), "2.5:%s", pm25->value->cstring);
+    snprintf(pm25text, sizeof(pm25text), "PM2.5:%s", pm25->value->cstring);
     text_layer_set_text(text_pm25_layer, pm25text);
   }
 
   static char update_time[20];
-  time_t now = time(NULL);
-  struct tm *tick_time = localtime(&now);
+  get_current_time(update_time, NULL);
 
-  snprintf(update_time, sizeof(update_time), "更新%d:%d", tick_time->tm_hour, tick_time->tm_min);
+  snprintf(update_time, 14, "%s更新", update_time);
 
   text_layer_set_text(text_updateTime_layer, update_time);
 
@@ -289,23 +294,24 @@ void init(void) {
   layer_add_child(window_layer, bitmap_layer_get_layer(battery_layer));
  
   //date text layer
-  text_date_layer = text_layer_create(GRect(3, 17, 42, 20));
+  text_date_layer = text_layer_create(GRect(3, 17, 42, 16));
   layer_add_child(window_layer, prepareTextLayer(text_date_layer));
 
   //PM2.5 text layer
-  text_pm25_layer = text_layer_create(GRect(45, 17, 50, 20));
+  text_pm25_layer = text_layer_create(GRect(45, 17, 60, 16));
   prepareTextLayer(text_pm25_layer);
-  text_layer_set_font(text_pm25_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  //text_layer_set_font(text_pm25_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
   layer_add_child(window_layer, prepareTextLayer(text_pm25_layer));
 
   //daily weather layer
-  text_daily_weather_layer = text_layer_create(GRect(95, 17, 46, 20));
+  text_daily_weather_layer = text_layer_create(GRect(105, 17, 36, 16));
   layer_add_child(window_layer, prepareTextLayer(text_daily_weather_layer));
 
   //time layer
-  text_time_layer = text_layer_create(GRect(3, 37, 138, 50));
+  text_time_layer = text_layer_create(GRect(3, 33, 138, 54));
   prepareTextLayer(text_time_layer);
-  text_layer_set_font(text_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS));
+  text_layer_set_font(text_time_layer, fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49));
+  text_layer_set_text_alignment(text_time_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(text_time_layer));
 
   //day 1 icon layer
